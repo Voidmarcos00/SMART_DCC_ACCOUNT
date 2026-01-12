@@ -8,22 +8,86 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* FULL-SCREEN AD-LIKE WELCOME BANNER */
+        #welcome-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #ff3b5c 0%, #ff6b9d 30%, #ff9f43 60%, #ffd60a 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1.5s ease;
+        }
+        #welcome-popup.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .welcome-content {
+            text-align: center;
+            padding: 40px;
+            animation: welcomePulse 3s infinite alternate;
+        }
+        #welcome-title {
+            font-size: 80px;
+            font-weight: 900;
+            margin: 0;
+            letter-spacing: 8px;
+            text-shadow: 0 0 40px rgba(0,0,0,0.6);
+            animation: titleGlow 4s infinite alternate;
+        }
+        @keyframes titleGlow {
+            from { text-shadow: 0 0 30px #ffd60a; }
+            to { text-shadow: 0 0 80px #ffd60a, 0 0 120px #ff3b5c; }
+        }
+        #welcome-subtitle {
+            font-size: 36px;
+            margin: 30px 0 0;
+            font-weight: 600;
+            opacity: 0.95;
+        }
+        @keyframes welcomePulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.03); }
+        }
+
+        /* Main content */
+        .main-content {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            margin: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #fff;
-            overflow-x: hidden;
+            padding: 40px 20px;
+            opacity: 0;
+            transition: opacity 1.5s ease 1s;
         }
+        .main-content.visible {
+            opacity: 1;
+        }
+
         h1 {
-            margin: 20px 0 30px;
+            margin: 0px 0 0px;
             font-size: 2.8rem;
             text-shadow: 0 4px 15px rgba(0,0,0,0.5);
             letter-spacing: 2px;
         }
+
         #wheel-container {
             position: relative;
             width: 480px;
@@ -36,7 +100,6 @@
             transition: transform 7s cubic-bezier(0.16, 0.68, 0.12, 0.98);
             filter: drop-shadow(0 15px 40px rgba(0,0,0,0.6));
         }
-        /* Animated left arrow pointer */
         #pointer-container {
             position: absolute;
             top: 50%;
@@ -228,87 +291,105 @@
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.08); }
         }
+
+        @keyframes fadeOutRemove {
+            to {
+                opacity: 0;
+                transform: scale(0.8) rotate(20deg);
+            }
+        }
+        .removing {
+            animation: fadeOutRemove 1.2s ease forwards;
+        }
     </style>
 </head>
 <body>
-    <h1>SMART DCC ACCOUNT</h1>
-    
-    <div id="wheel-container">
-        <div id="pointer-container">➜</div>
-        <svg id="wheel" viewBox="0 0 400 400"></svg>
-    </div>
-
-    <div id="controls">
-        <button id="spin-btn">SPIN </button>
-        <button id="reset-btn" title="Reset Session">↻</button>
-    </div>
-
-    <div id="keyboard-hint">
-        Press <kbd>Enter</kbd> or <kbd>Space</kbd> to spin / continue • <kbd>R</kbd> to reset
-    </div>
-
-    <!-- Winner Popup -->
-    <div id="winner-popup">
-        <div class="popup-content">
-            <div id="popup-winner-name"></div>
-            <div id="popup-emojis">🏆🎊🎉✨👏🎈🏅🎆</div>
-            <div id="popup-message">🎉 CONGRATULATIONS! 🎉</div>
-            <div id="popup-hint">Press Enter or Space to continue</div>
+    <!-- FULL-SCREEN AD-STYLE WELCOME BANNER -->
+    <div id="welcome-popup">
+        <div class="welcome-content">
+            <div id="welcome-title">SMART DCC ACCOUNT</div>
+            <div id="welcome-subtitle">Welcome to the Ultimate Spin Experience!</div>
         </div>
     </div>
 
-    <!-- Creative Challenge -->
-    <div id="creative-idea">
-        <h3>TEAM LEADER</h3>
-        <p id="idea-text"></p>
-    </div>
+    <!-- Main Game Content -->
+    <div class="main-content" id="main-content">
+        <h1>SMART DCC ACCOUNT</h1>
+        
+        <div id="wheel-container">
+            <div id="pointer-container">➜</div>
+            <svg id="wheel" viewBox="0 0 400 400"></svg>
+        </div>
 
-    <!-- Spin History -->
-    <div id="history-log">
-        <h3>Spin History</h3>
-        <ol id="history-list"></ol>
+        <div id="controls">
+            <button id="spin-btn">SPIN </button>
+            <button id="reset-btn" title="Reset Session">↻</button>
+        </div>
+
+        <div id="keyboard-hint">
+            Press <kbd>Enter</kbd> or <kbd>Space</kbd> to spin / continue • <kbd>R</kbd> to reset
+        </div>
+
+        <!-- Winner Popup -->
+        <div id="winner-popup">
+            <div class="popup-content">
+                <div id="popup-winner-name"></div>
+                <div id="creative-idea">
+                    <h3>SQUAD LEADER</h3>
+                    <p id="idea-text"></p>
+                </div>
+                <div id="popup-message">🎉 CONGRATULATIONS! 🎉</div>
+                <div id="popup-hint">Press Enter or Space to continue</div>
+            </div>
+        </div>
+
+        <!-- Spin History -->
+        <div id="history-log">
+            <h3>Spin History</h3>
+            <ol id="history-list"></ol>
+        </div>
     </div>
 
     <!-- Sounds -->
     <audio id="drumroll-sound" preload="auto">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-drum-roll-566.mp3" type="audio/mpeg">
+        <source src="https://soundbible.com/mp3/Drum%20Roll%20Sound.mp3" type="audio/mpeg">
     </audio>
     <audio id="winner-fanfare" preload="auto">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-fanfare-transition-1337.mp3" type="audio/mpeg">
+        <source src="https://orangefreesounds.com/wp-content/uploads/2023/08/Fanfare-sound-effect.mp3" type="audio/mpeg">
     </audio>
     <audio id="applause-sound" preload="auto">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-applause-crowd-ovation-464.mp3" type="audio/mpeg">
+        <source src="https://soundbible.com/mp3/Audience_Applause.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="welcome-chime" preload="auto">
+        <source src="https://orangefreesounds.com/wp-content/uploads/2014/08/Magical-chime.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sparkle-sound" preload="auto">
+        <source src="https://orangefreesounds.com/wp-content/uploads/2016/12/Sparkle-sound-effect.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="confetti-pop-sound" preload="auto">
+        <source src="https://orangefreesounds.com/wp-content/uploads/2021/02/Pop-sound-effect.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="reset-whoosh-sound" preload="auto">
+        <source src="https://orangefreesounds.com/wp-content/uploads/2023/12/Fairy-sparkle-sound-effect.mp3" type="audio/mpeg">
     </audio>
 
     <script>
         const teams = [
-            { label: "AD Squad 1", color: "#FF6B6B", icon: "🚀" },
-            { label: "AD Squad 2", color: "#4ECDC4", icon: "🎨" },
-            { label: "AD Squad 3", color: "#45B7D1", icon: "📈" },
+            { label: "AD Squad 1", color: "#FF6B6B", icon: "🌐" },
+            { label: "AD Squad 2", color: "#4ECDC4", icon: "📨" },
+            { label: "AD Squad 3", color: "#45B7D1", icon: "🗄️" },
             { label: "Test Squad", color: "#96CEB4", icon: "🔍" },
             { label: "Platform Squad", color: "#9B59B6", icon: "☁️" },
             { label: "Security Squad", color: "#3498DB", icon: "🛡️" }
         ];
 
         const creativeIdeas = {
-            "AD Squad 1": [
-                " MAHUA "
-            ],
-            "AD Squad 2": [
-                "VISHWESH "
-            ],
-            "AD Squad 3": [
-                "DEEPIKA"
-            ],
-            "Test Squad": [
-                 "MILIND"
-            ],
-            "Platform Squad": [
-                "GRIG"
-            ],
-            "Security Squad": [
-                "TEAM LEADER : ? "
-            ]
+            "AD Squad 1": [" MAHUA "],
+            "AD Squad 2": ["VISHWESH "],
+            "AD Squad 3": ["DEEPIKA"],
+            "Test Squad": ["MILIND"],
+            "Platform Squad": ["GRIG"],
+            "Security Squad": [" ? "]
         };
 
         let availableTeams = [...teams];
@@ -324,10 +405,30 @@
         const drumrollSound = document.getElementById('drumroll-sound');
         const fanfareSound = document.getElementById('winner-fanfare');
         const applauseSound = document.getElementById('applause-sound');
+        const welcomePopup = document.getElementById('welcome-popup');
+        const welcomeChime = document.getElementById('welcome-chime');
+        const mainContent = document.getElementById('main-content');
+
+        const sparkleSound = document.getElementById('sparkle-sound');
+        const confettiPopSound = document.getElementById('confetti-pop-sound');
+        const resetWhooshSound = document.getElementById('reset-whoosh-sound');
 
         let isSpinning = false;
         let currentRotation = 0;
         let popupActive = false;
+        let audioUnlocked = false;
+
+        // Unlock audio on first interaction
+        const unlockAudio = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAAA');
+        function unlockSound() {
+            if (audioUnlocked) return;
+            unlockAudio.play().then(() => audioUnlocked = true);
+        }
+        document.body.addEventListener('click', unlockSound, { once: true });
+        document.body.addEventListener('keydown', unlockSound, { once: true });
+        document.body.addEventListener('touchstart', unlockSound, { once: true });
+
+        const svgNS = "http://www.w3.org/2000/svg";
 
         function lightenColor(hex, percent) {
             const num = parseInt(hex.replace("#",""), 16);
@@ -365,14 +466,13 @@
 
                 const pathData = `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
 
-                // Gradient
-                const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-                const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'radialGradient');
+                const defs = document.createElementNS(svgNS, 'defs');
+                const gradient = document.createElementNS(svgNS, 'radialGradient');
                 gradient.setAttribute('id', `grad-${index}`);
-                const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+                const stop1 = document.createElementNS(svgNS, 'stop');
                 stop1.setAttribute('offset', '0%');
                 stop1.setAttribute('stop-color', lightenColor(team.color, 0.5));
-                const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+                const stop2 = document.createElementNS(svgNS, 'stop');
                 stop2.setAttribute('offset', '100%');
                 stop2.setAttribute('stop-color', team.color);
                 gradient.appendChild(stop1);
@@ -380,8 +480,7 @@
                 defs.appendChild(gradient);
                 wheel.appendChild(defs);
 
-                // Segment
-                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const path = document.createElementNS(svgNS, 'path');
                 path.setAttribute('d', pathData);
                 path.setAttribute('fill', `url(#grad-${index})`);
                 path.setAttribute('stroke', '#ffffff');
@@ -390,21 +489,20 @@
                 path.dataset.index = index;
                 wheel.appendChild(path);
 
-                // Text & Icon
                 const midAngle = (startAngle + anglePerSegment / 2) * Math.PI / 180;
                 const textRadius = radius * 0.65;
                 const textX = center + textRadius * Math.cos(midAngle);
                 const textY = center + textRadius * Math.sin(midAngle);
 
-                const textGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                const icon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                const textGroup = document.createElementNS(svgNS, 'g');
+                const icon = document.createElementNS(svgNS, 'text');
                 icon.textContent = team.icon;
                 icon.setAttribute('x', textX);
                 icon.setAttribute('y', textY - 15);
                 icon.setAttribute('font-size', '45');
                 icon.setAttribute('text-anchor', 'middle');
 
-                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                const label = document.createElementNS(svgNS, 'text');
                 label.textContent = team.label;
                 label.setAttribute('x', textX);
                 label.setAttribute('y', textY + 25);
@@ -426,9 +524,28 @@
 
         function triggerEpicBurst() {
             const colors = ['#ff3b5c', '#ffd60a', '#4ecdc4', '#45b7d1', '#96ceb4', '#9b59b6', '#3498db'];
-            confetti({ particleCount: 250, spread: 120, origin: { x: 0.5, y: 0.6 }, colors, gravity: 0.8, scalar: 1.3 });
-            confetti({ particleCount: 120, angle: 60, spread: 70, origin: { x: 0, y: 0.7 }, colors });
-            confetti({ particleCount: 120, angle: 120, spread: 70, origin: { x: 1, y: 0.7 }, colors });
+            confetti({ particleCount: 300, spread: 150, origin: { x: 0.5, y: 0.5 }, colors, gravity: 0.8, scalar: 1.4 });
+            confetti({ particleCount: 150, angle: 60, spread: 80, origin: { x: 0, y: 0.5 }, colors });
+            confetti({ particleCount: 150, angle: 120, spread: 80, origin: { x: 1, y: 0.5 }, colors });
+
+            sparkleSound.currentTime = 0;
+            sparkleSound.play().catch(() => {});
+        }
+
+        function showWelcomePopup() {
+            welcomePopup.classList.add('show');
+            triggerEpicBurst();
+            welcomeChime.currentTime = 0;
+            welcomeChime.play().catch(() => {});
+            
+            setTimeout(() => {
+                welcomePopup.style.opacity = '0';
+                setTimeout(() => {
+                    welcomePopup.classList.remove('show');
+                    welcomePopup.style.visibility = 'hidden';
+                    mainContent.classList.add('visible');
+                }, 1200);
+            }, 1400);
         }
 
         function showWinnerPopup(team) {
@@ -436,6 +553,9 @@
             winnerPopup.classList.add('show');
             popupActive = true;
             spinBtn.disabled = true;
+
+            confettiPopSound.currentTime = 0;
+            confettiPopSound.play().catch(() => {});
         }
 
         function hideWinnerPopup() {
@@ -448,7 +568,7 @@
             spinHistory.unshift(teamLabel);
             const li = document.createElement('li');
             li.textContent = teamLabel;
-            historyList.prepend(li);
+            historyList.append(li);
             if (historyList.children.length > 10) historyList.removeChild(historyList.lastChild);
         }
 
@@ -469,9 +589,8 @@
             const anglePerSegment = 360 / numSegments;
             const targetCenter = randomIndex * anglePerSegment + anglePerSegment / 2;
 
-            // Adjust so pointer (left side) points to winner: add 180° offset
             const extraSpins = 6 + Math.floor(Math.random() * 5);
-            const finalRotation = currentRotation + extraSpins * 360 + (180 - targetCenter);
+            const finalRotation = currentRotation + extraSpins * 360 - targetCenter;
 
             wheel.style.transform = `rotate(${finalRotation}deg)`;
 
@@ -486,30 +605,60 @@
 
                 triggerEpicBurst();
 
-                const segments = document.querySelectorAll('.segment');
-                if (segments[randomIndex]) segments[randomIndex].classList.add('winner-glow');
+                const normalizedRotation = ((finalRotation % 360) + 360) % 360;
+                const arrowAngle = 180;
+                let closestIndex = 0;
+                let minDiff = Infinity;
+
+                availableTeams.forEach((team, idx) => {
+                    const segmentCenter = (idx * anglePerSegment + anglePerSegment / 2 + normalizedRotation) % 360;
+                    let diff = Math.abs(segmentCenter - arrowAngle);
+                    if (diff > 180) diff = 360 - diff;
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closestIndex = idx;
+                    }
+                });
+
+                const winnerSegment = document.querySelectorAll('.segment')[closestIndex];
+                const actualWinnerTeam = availableTeams[closestIndex];
+
+                if (winnerSegment) winnerSegment.classList.add('winner-glow');
 
                 setTimeout(() => {
-                    showWinnerPopup(selectedTeam);
-                    ideaText.textContent = generateCreativeIdea(selectedTeam.label);
+                    showWinnerPopup(actualWinnerTeam);
+                    ideaText.textContent = generateCreativeIdea(actualWinnerTeam.label);
                     creativeIdeaDiv.classList.add('show');
-                    addToHistory(selectedTeam.label);
+                    addToHistory(actualWinnerTeam.label);
+
+                    if (winnerSegment) {
+                        winnerSegment.classList.add('removing');
+                        winnerSegment.addEventListener('animationend', () => {
+                            availableTeams.splice(closestIndex, 1);
+                            currentRotation = finalRotation % 360;
+                            wheel.style.transition = 'none';
+                            wheel.style.transform = `rotate(${currentRotation}deg)`;
+                            setTimeout(() => {
+                                wheel.style.transition = 'transform 7s cubic-bezier(0.16, 0.68, 0.12, 0.98)';
+                                drawWheel();
+                            }, 100);
+                            isSpinning = false;
+                        }, { once: true });
+                    } else {
+                        availableTeams.splice(closestIndex, 1);
+                        drawWheel();
+                        isSpinning = false;
+                    }
                 }, 1000);
-
-                availableTeams.splice(randomIndex, 1);
-                currentRotation = finalRotation % 360;
-                wheel.style.transition = 'none';
-                wheel.style.transform = `rotate(${currentRotation}deg)`;
-                setTimeout(() => {
-                    wheel.style.transition = 'transform 7s cubic-bezier(0.16, 0.68, 0.12, 0.98)';
-                }, 100);
-
-                drawWheel();
-                isSpinning = false;
             }, 7400);
         }
 
         function resetSession() {
+            // Play reset sound
+            resetWhooshSound.currentTime = 0;
+            resetWhooshSound.play().catch(() => {});
+
+            // Reset all game state
             availableTeams = [...teams];
             spinHistory = [];
             currentRotation = 0;
@@ -520,10 +669,24 @@
             historyList.innerHTML = '';
             spinBtn.disabled = false;
             drawWheel();
+
+            // Exactly mimic fresh page load: hide main content and replay full welcome banner
+            mainContent.classList.remove('visible');
+            welcomePopup.classList.remove('show');
+            welcomePopup.style.visibility = 'visible';
+            welcomePopup.style.opacity = '0';
+            showWelcomePopup();
+
+            // Trigger the same welcome sequence as on initial load
+            setTimeout(showWelcomePopup, 80);
         }
 
-        // Unified keyboard control
         document.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 'r') {
+                e.preventDefault();
+                location.reload();  // Full page refresh
+                return;
+            }
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 if (popupActive) {
@@ -531,15 +694,14 @@
                 } else if (!isSpinning) {
                     spinWheel();
                 }
-            } else if (e.key.toLowerCase() === 'r') {
-                resetSession();
-            }
+            } 
         });
 
         spinBtn.addEventListener('click', spinWheel);
         resetBtn.addEventListener('click', resetSession);
 
-        // Initial draw
+        // Initial load - show welcome banner
+        showWelcomePopup();
         drawWheel();
     </script>
 </body>
