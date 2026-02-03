@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SMART DCC ACCOUNT</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -94,6 +95,7 @@
             height: 480px;
             margin-bottom: 40px;
         }
+        
         #wheel {
             width: 100%;
             height: 100%;
@@ -163,7 +165,7 @@
         }
 
         #keyboard-hint {
-            margin-top: -120px;
+            margin-top: -40px;
             font-size: 18px;
             color: rgba(255,255,255,0.8);
         }
@@ -251,7 +253,7 @@
 
         /* History Log */
         #history-log {
-            margin-top: 80px;
+            margin-top: 30px;
             padding: 20px;
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(10px);
@@ -301,6 +303,340 @@
         .removing {
             animation: fadeOutRemove 1.2s ease forwards;
         }
+
+        /* QR Code Modal */
+        #qr-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+        #qr-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .qr-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            max-width: 400px;
+            position: relative;
+        }
+        #qr-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        #qr-close:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+        #qr-title {
+            font-size: 28px;
+            margin: 0 0 20px;
+            font-weight: bold;
+            color: #ffd60a;
+        }
+        #qr-code-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            display: inline-block;
+            margin: 20px 0;
+        }
+        #qr-instructions {
+            font-size: 16px;
+            color: rgba(255,255,255,0.9);
+            margin-top: 15px;
+            line-height: 1.6;
+        }
+        #qr-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(45deg, #ffd60a, #ff9f43);
+            color: #333;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        #qr-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            body {
+                overflow-y: auto;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+                margin: 10px 0;
+            }
+
+            #welcome-title {
+                font-size: 48px;
+                letter-spacing: 4px;
+            }
+
+            #welcome-subtitle {
+                font-size: 22px;
+                margin: 20px 0 0;
+            }
+
+            .main-content {
+                padding: 20px 10px;
+                min-height: auto;
+            }
+
+            #wheel-container {
+                width: min(90vw, 350px);
+                height: min(90vw, 350px);
+                margin-bottom: 20px;
+            }
+
+            #pointer-container {
+                font-size: 50px;
+                left: -30px;
+            }
+
+            #controls {
+                flex-direction: column;
+                gap: 15px;
+                margin-bottom: 15px;
+            }
+
+            #spin-btn {
+                padding: 15px 40px;
+                font-size: 22px;
+                width: 200px;
+            }
+
+            #reset-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 30px;
+            }
+
+            #keyboard-hint {
+                font-size: 14px;
+                margin-top: -20px;
+                padding: 0 10px;
+                text-align: center;
+            }
+
+            #keyboard-hint kbd {
+                font-size: 12px;
+            }
+
+            .popup-content {
+                padding: 30px 20px;
+                margin: 20px;
+                max-width: calc(100% - 40px);
+            }
+
+            #popup-winner-name {
+                font-size: 36px;
+            }
+
+            #popup-message {
+                font-size: 24px;
+            }
+
+            #popup-hint {
+                font-size: 16px;
+            }
+
+            #creative-idea {
+                margin-top: 20px;
+                padding: 20px;
+                max-width: 90%;
+            }
+
+            #creative-idea h3 {
+                font-size: 22px;
+            }
+
+            #idea-text {
+                font-size: 16px;
+            }
+
+            #history-log {
+                margin-top: 20px;
+                padding: 15px;
+                max-width: 90%;
+                max-height: 150px;
+            }
+
+            #history-log h3 {
+                font-size: 18px;
+            }
+
+            #history-list {
+                font-size: 14px;
+            }
+
+            #history-list li {
+                padding: 6px 0;
+            }
+
+            #qr-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 60px;
+                height: 60px;
+                font-size: 28px;
+            }
+
+            .qr-content {
+                padding: 30px 20px;
+                margin: 20px;
+                max-width: calc(100% - 40px);
+            }
+
+            #qr-title {
+                font-size: 22px;
+            }
+
+            #qr-code-container {
+                padding: 15px;
+            }
+
+            #qr-code-container canvas,
+            #qr-code-container img {
+                max-width: 220px !important;
+                max-height: 220px !important;
+                width: 100% !important;
+                height: auto !important;
+            }
+
+            #qr-instructions {
+                font-size: 14px;
+            }
+
+            #qr-close {
+                width: 30px;
+                height: 30px;
+                font-size: 20px;
+            }
+        }
+
+        /* Extra small mobile devices */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            #welcome-title {
+                font-size: 36px;
+            }
+
+            #welcome-subtitle {
+                font-size: 18px;
+            }
+
+            #wheel-container {
+                width: min(85vw, 300px);
+                height: min(85vw, 300px);
+            }
+
+            #pointer-container {
+                font-size: 40px;
+                left: -25px;
+            }
+
+            #spin-btn {
+                padding: 12px 35px;
+                font-size: 20px;
+                width: 180px;
+            }
+
+            #reset-btn {
+                width: 55px;
+                height: 55px;
+                font-size: 28px;
+            }
+
+            #popup-winner-name {
+                font-size: 28px;
+            }
+
+            #popup-message {
+                font-size: 20px;
+            }
+
+            #creative-idea h3 {
+                font-size: 20px;
+            }
+
+            #idea-text {
+                font-size: 15px;
+            }
+
+            #qr-code-container canvas,
+            #qr-code-container img {
+                max-width: 180px !important;
+                max-height: 180px !important;
+            }
+        }
+
+        /* Landscape mode on mobile */
+        @media (max-width: 900px) and (orientation: landscape) {
+            .main-content {
+                padding: 10px;
+            }
+
+            #wheel-container {
+                width: min(40vh, 300px);
+                height: min(40vh, 300px);
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                margin: 5px 0;
+            }
+
+            #keyboard-hint {
+                font-size: 12px;
+                margin-top: -10px;
+            }
+
+            #history-log {
+                max-height: 100px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -315,19 +651,16 @@
     <!-- Main Game Content -->
     <div class="main-content" id="main-content">
         <h1>SMART DCC ACCOUNT</h1>
-        
         <div id="wheel-container">
             <div id="pointer-container">➜</div>
             <svg id="wheel" viewBox="0 0 400 400"></svg>
         </div>
-
+         <div id="keyboard-hint">
+            Press <kbd>Enter</kbd> or <kbd>Space</kbd> to spin / continue • <kbd>R</kbd> to reset
+        </div>
         <div id="controls">
             <button id="spin-btn">SPIN </button>
             <button id="reset-btn" title="Reset Session">↻</button>
-        </div>
-
-        <div id="keyboard-hint">
-            Press <kbd>Enter</kbd> or <kbd>Space</kbd> to spin / continue • <kbd>R</kbd> to reset
         </div>
 
         <!-- Winner Popup -->
@@ -350,28 +683,21 @@
         </div>
     </div>
 
-    <!-- Sounds -->
-    <audio id="drumroll-sound" preload="auto">
-        <source src="https://soundbible.com/mp3/Drum%20Roll%20Sound.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="winner-fanfare" preload="auto">
-        <source src="https://orangefreesounds.com/wp-content/uploads/2023/08/Fanfare-sound-effect.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="applause-sound" preload="auto">
-        <source src="https://soundbible.com/mp3/Audience_Applause.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="welcome-chime" preload="auto">
-        <source src="https://orangefreesounds.com/wp-content/uploads/2014/08/Magical-chime.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="sparkle-sound" preload="auto">
-        <source src="https://orangefreesounds.com/wp-content/uploads/2016/12/Sparkle-sound-effect.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="confetti-pop-sound" preload="auto">
-        <source src="https://orangefreesounds.com/wp-content/uploads/2021/02/Pop-sound-effect.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="reset-whoosh-sound" preload="auto">
-        <source src="https://orangefreesounds.com/wp-content/uploads/2023/12/Fairy-sparkle-sound-effect.mp3" type="audio/mpeg">
-    </audio>
+    <!-- QR Code Button -->
+    <button id="qr-btn" title="Show QR Code for Mobile">📱</button>
+
+    <!-- QR Code Modal -->
+    <div id="qr-modal">
+        <div class="qr-content">
+            <button id="qr-close">×</button>
+            <div id="qr-title">📱 Scan to Open on Mobile</div>
+            <div id="qr-code-container"></div>
+            <div id="qr-instructions">
+                Scan this QR code with your mobile device<br>
+                to access the spinning wheel app!
+            </div>
+        </div>
+    </div>
 
     <script>
         const teams = [
@@ -389,7 +715,7 @@
             "AD Squad 3": ["DEEPIKA"],
             "Test Squad": ["MILIND"],
             "Platform Squad": ["GRIG"],
-            "Security Squad": [" ? "]
+            "Security Squad": [" SARAH "]
         };
 
         let availableTeams = [...teams];
@@ -402,31 +728,12 @@
         const creativeIdeaDiv = document.getElementById('creative-idea');
         const ideaText = document.getElementById('idea-text');
         const historyList = document.getElementById('history-list');
-        const drumrollSound = document.getElementById('drumroll-sound');
-        const fanfareSound = document.getElementById('winner-fanfare');
-        const applauseSound = document.getElementById('applause-sound');
         const welcomePopup = document.getElementById('welcome-popup');
-        const welcomeChime = document.getElementById('welcome-chime');
         const mainContent = document.getElementById('main-content');
-
-        const sparkleSound = document.getElementById('sparkle-sound');
-        const confettiPopSound = document.getElementById('confetti-pop-sound');
-        const resetWhooshSound = document.getElementById('reset-whoosh-sound');
 
         let isSpinning = false;
         let currentRotation = 0;
         let popupActive = false;
-        let audioUnlocked = false;
-
-        // Unlock audio on first interaction
-        const unlockAudio = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAAA');
-        function unlockSound() {
-            if (audioUnlocked) return;
-            unlockAudio.play().then(() => audioUnlocked = true);
-        }
-        document.body.addEventListener('click', unlockSound, { once: true });
-        document.body.addEventListener('keydown', unlockSound, { once: true });
-        document.body.addEventListener('touchstart', unlockSound, { once: true });
 
         const svgNS = "http://www.w3.org/2000/svg";
 
@@ -527,16 +834,11 @@
             confetti({ particleCount: 300, spread: 150, origin: { x: 0.5, y: 0.5 }, colors, gravity: 0.8, scalar: 1.4 });
             confetti({ particleCount: 150, angle: 60, spread: 80, origin: { x: 0, y: 0.5 }, colors });
             confetti({ particleCount: 150, angle: 120, spread: 80, origin: { x: 1, y: 0.5 }, colors });
-
-            sparkleSound.currentTime = 0;
-            sparkleSound.play().catch(() => {});
         }
 
         function showWelcomePopup() {
             welcomePopup.classList.add('show');
             triggerEpicBurst();
-            welcomeChime.currentTime = 0;
-            welcomeChime.play().catch(() => {});
             
             setTimeout(() => {
                 welcomePopup.style.opacity = '0';
@@ -553,9 +855,6 @@
             winnerPopup.classList.add('show');
             popupActive = true;
             spinBtn.disabled = true;
-
-            confettiPopSound.currentTime = 0;
-            confettiPopSound.play().catch(() => {});
         }
 
         function hideWinnerPopup() {
@@ -580,9 +879,6 @@
             creativeIdeaDiv.classList.remove('show');
             document.querySelectorAll('.segment').forEach(s => s.classList.remove('winner-glow'));
 
-            drumrollSound.currentTime = 0;
-            drumrollSound.play().catch(() => {});
-
             const randomIndex = Math.floor(Math.random() * availableTeams.length);
             const selectedTeam = availableTeams[randomIndex];
             const numSegments = availableTeams.length;
@@ -595,14 +891,6 @@
             wheel.style.transform = `rotate(${finalRotation}deg)`;
 
             setTimeout(() => {
-                drumrollSound.pause();
-                fanfareSound.currentTime = 0;
-                fanfareSound.play().catch(() => {});
-                setTimeout(() => {
-                    applauseSound.currentTime = 0;
-                    applauseSound.play().catch(() => {});
-                }, 600);
-
                 triggerEpicBurst();
 
                 const normalizedRotation = ((finalRotation % 360) + 360) % 360;
@@ -654,10 +942,6 @@
         }
 
         function resetSession() {
-            // Play reset sound
-            resetWhooshSound.currentTime = 0;
-            resetWhooshSound.play().catch(() => {});
-
             // Reset all game state
             availableTeams = [...teams];
             spinHistory = [];
@@ -699,6 +983,156 @@
 
         spinBtn.addEventListener('click', spinWheel);
         resetBtn.addEventListener('click', resetSession);
+
+        // Add touch support for mobile devices
+        spinBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            spinWheel();
+        });
+
+        // Touch support for winner popup - tap anywhere to continue
+        winnerPopup.addEventListener('click', (e) => {
+            if (popupActive && e.target !== qrClose) {
+                hideWinnerPopup();
+            }
+        });
+
+        winnerPopup.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (popupActive && e.target !== qrClose) {
+                hideWinnerPopup();
+            }
+        });
+
+        // Touch support for wheel itself - tap to spin
+        wheel.addEventListener('click', () => {
+            if (!isSpinning && !popupActive && availableTeams.length > 0) {
+                spinWheel();
+            }
+        });
+
+        wheel.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (!isSpinning && !popupActive && availableTeams.length > 0) {
+                spinWheel();
+            }
+        });
+
+        // QR Code functionality with AI-powered device detection
+        const qrBtn = document.getElementById('qr-btn');
+        const qrModal = document.getElementById('qr-modal');
+        const qrClose = document.getElementById('qr-close');
+        const qrCodeContainer = document.getElementById('qr-code-container');
+        let qrCodeGenerated = false;
+
+        // AI-powered Smart QR Code Generator
+        // Automatically detects device type (iOS/Android) and redirects appropriately
+        function generateSmartQRCode() {
+            if (!qrCodeGenerated) {
+                qrCodeContainer.innerHTML = '';
+                
+                // Create a smart landing page URL that will detect device type
+                // This URL will use AI logic to route users to the correct destination
+                const baseURL = window.location.origin + window.location.pathname;
+                const smartLandingURL = baseURL + '?mobile=true&src=qr';
+                
+                // Alternative: If you have a dedicated mobile landing page/API endpoint
+                // const smartLandingURL = 'https://yourdomain.com/smart-redirect';
+                
+                new QRCode(qrCodeContainer, {
+                    text: smartLandingURL,
+                    width: 256,
+                    height: 256,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                qrCodeGenerated = true;
+            }
+        }
+
+        // AI Device Detection - Runs when page loads with mobile=true parameter
+        function detectAndRedirectMobileDevice() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isMobileQRScan = urlParams.get('mobile') === 'true';
+            
+            if (isMobileQRScan) {
+                const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+                
+                // AI-powered device detection logic
+                const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+                const isAndroid = /android/i.test(userAgent);
+                
+                // Configure your app store URLs and deep links here
+                const APP_CONFIG = {
+                    ios: {
+                        appStore: 'https://apps.apple.com/app/your-app-id', // Replace with your iOS App Store URL
+                        deepLink: 'smartdcc://', // Replace with your iOS app scheme
+                        universalLink: 'https://yourdomain.com/app' // Optional: Universal Link
+                    },
+                    android: {
+                        playStore: 'https://play.google.com/store/apps/details?id=com.yourapp', // Replace with your Android app
+                        deepLink: 'smartdcc://', // Replace with your Android app scheme
+                        appLink: 'https://yourdomain.com/app' // Optional: App Link
+                    }
+                };
+                
+                // Smart redirect logic with AI decision making
+                if (isIOS) {
+                    // Try to open the app first (if installed)
+                    window.location.href = APP_CONFIG.ios.deepLink || APP_CONFIG.ios.universalLink;
+                    
+                    // Fallback to App Store after 2 seconds if app not installed
+                    setTimeout(() => {
+                        if (document.hidden) return; // App opened successfully
+                        window.location.href = APP_CONFIG.ios.appStore;
+                    }, 2000);
+                } else if (isAndroid) {
+                    // Try to open the app first (if installed)
+                    window.location.href = APP_CONFIG.android.deepLink || APP_CONFIG.android.appLink;
+                    
+                    // Fallback to Play Store after 2 seconds if app not installed
+                    setTimeout(() => {
+                        if (document.hidden) return; // App opened successfully
+                        window.location.href = APP_CONFIG.android.playStore;
+                    }, 2000);
+                } else {
+                    // Desktop or unrecognized device - show message
+                    alert('Please scan this QR code using your mobile device (iOS or Android) to access the mobile app.');
+                }
+                
+                // Analytics tracking (optional - integrate with your analytics service)
+                console.log('QR Scan detected:', {
+                    device: isIOS ? 'iOS' : isAndroid ? 'Android' : 'Other',
+                    userAgent: userAgent,
+                    timestamp: new Date().toISOString()
+                });
+            }
+        }
+
+        // Run device detection on page load
+        detectAndRedirectMobileDevice();
+
+        qrBtn.addEventListener('click', () => {
+            generateSmartQRCode();
+            qrModal.classList.add('show');
+        });
+
+        qrClose.addEventListener('click', () => {
+            qrModal.classList.remove('show');
+        });
+
+        qrModal.addEventListener('click', (e) => {
+            if (e.target === qrModal) {
+                qrModal.classList.remove('show');
+            } 
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && qrModal.classList.contains('show')) {
+                qrModal.classList.remove('show');
+            }
+        });
 
         // Initial load - show welcome banner
         showWelcomePopup();
