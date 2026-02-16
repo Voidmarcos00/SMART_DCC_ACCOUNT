@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART DCC ACCOUNT</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* FULL-SCREEN AD-LIKE WELCOME BANNER */
+        #welcome-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #ff3b5c 0%, #ff6b9d 30%, #ff9f43 60%, #ffd60a 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1.5s ease;
+        }
+        #welcome-popup.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .welcome-content {
+            text-align: center;
+            padding: 40px;
+            animation: welcomePulse 3s infinite alternate;
+        }
+        #welcome-title {
+            font-size: 80px;
+            font-weight: 900;
+            margin: 0;
+            letter-spacing: 8px;
+            text-shadow: 0 0 40px rgba(0,0,0,0.6);
+            animation: titleGlow 4s infinite alternate;
+        }
+        @keyframes titleGlow {
+            from { text-shadow: 0 0 30px #ffd60a; }
+            to { text-shadow: 0 0 80px #ffd60a, 0 0 120px #ff3b5c; }
+        }
+        #welcome-subtitle {
+            font-size: 36px;
+            margin: 30px 0 0;
+            font-weight: 600;
+            opacity: 0.95;
+        }
+        @keyframes welcomePulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.03); }
+        }
+
+        /* Main content */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            opacity: 0;
+            transition: opacity 1.5s ease 1s;
+        }
+        .main-content.visible {
+            opacity: 1;
+        }
+
+        h1 {
+            margin: 0px 0 0px;
+            font-size: 2.8rem;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            letter-spacing: 2px;
+        }
+
+        #wheel-container {
+            position: relative;
+            width: 480px;
+            height: 480px;
+            margin-bottom: 40px;
+        }
+        
+        #wheel {
+            width: 100%;
+            height: 100%;
+            transition: transform 7s cubic-bezier(0.16, 0.68, 0.12, 0.98);
+            filter: drop-shadow(0 15px 40px rgba(0,0,0,0.6));
+        }
+        #pointer-container {
+            position: absolute;
+            top: 50%;
+            left: -50px;
+            transform: translateY(-50%);
+            z-index: 20;
+            font-size: 80px;
+            color: #ff3b5c;
+            text-shadow: 0 8px 20px rgba(0,0,0,0.6);
+            animation: arrowPulse 2s infinite alternate;
+        }
+        @keyframes arrowPulse {
+            from { transform: translateY(-50%) translateX(0); }
+            to { transform: translateY(-50%) translateX(10px); }
+        }
+
+        #controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        #spin-btn {
+            padding: 18px 50px;
+            font-size: 26px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff3b5c, #ff9f43);
+            color: white;
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            transition: all 0.3s ease;
+        }
+        #spin-btn:hover:not(:disabled) {
+            transform: translateY(-6px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        #spin-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        #reset-btn {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            font-size: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        #reset-btn:hover {
+            transform: rotate(180deg) scale(1.1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        #keyboard-hint {
+            margin-top: -40px;
+            font-size: 18px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* Winner Popup */
+        #winner-popup {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.6s ease;
+        }
+        #winner-popup.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .popup-content {
+            background: linear-gradient(135deg, #ff3b5c, #ff9f43);
+            padding: 50px 60px;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            transform: scale(0.7);
+            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        #winner-popup.show .popup-content {
+            transform: scale(1);
+        }
+        #popup-winner-name {
+            font-size: 60px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 30px #ffd60a;
+            margin: 0 0 20px;
+        }
+        #popup-emojis {
+            font-size: 80px;
+            margin: 20px 0;
+        }
+        #popup-message {
+            font-size: 32px;
+            color: #fff;
+        }
+        #popup-hint {
+            margin-top: 20px;
+            font-size: 20px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        /* Creative Idea */
+        #creative-idea {
+            margin-top: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.3);
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 1s ease 0.5s;
+        }
+        #creative-idea.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #creative-idea h3 {
+            margin: 0 0 20px;
+            font-size: 28px;
+            color: #ffd60a;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+        }
+        #idea-text {
+            font-size: 20px;
+            line-height: 1.7;
+        }
+
+        /* History Log */
+        #history-log {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        #history-log h3 {
+            margin: 0 0 15px;
+            font-size: 22px;
+            text-align: center;
+            color: #ffd60a;
+        }
+        #history-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: 18px;
+        }
+        #history-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        #history-list li:last-child {
+            border-bottom: none;
+        }
+
+        .winner-glow {
+            filter: drop-shadow(0 0 40px #ffd60a) drop-shadow(0 0 80px #ff3b5c);
+            animation: segmentPulse 3s infinite;
+        }
+        @keyframes segmentPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        @keyframes fadeOutRemove {
+            to {
+                opacity: 0;
+                transform: scale(0.8) rotate(20deg);
+            }
+        }
+        .removing {
+            animation: fadeOutRemove 1.2s ease forwards;
+        }
+
+        /* QR Code Modal */
+        #qr-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+        #qr-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .qr-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            max-width: 400px;
+            position: relative;
+        }
+        #qr-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        #qr-close:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+        #qr-title {
+            font-size: 28px;
+            margin: 0 0 20px;
+            font-weight: bold;
+            color: #ffd60a;
+        }
+        #qr-code-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            display: inline-block;
+            margin: 20px 0;
+        }
+        #qr-instructions {
+            font-size: 16px;
+            color: rgba(255,255,255,0.9);
+            margin-top: 15px;
+            line-height: 1.6;
+        }
+        #qr-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(45deg, #ffd60a, #ff9f43);
+            color: #333;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        #qr-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            body {
+                overflow-y: auto;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+                margin: 10px 0;
+            }
+
+            #welcome-title {
+                font-size: 48px;
+                letter-spacing: 4px;
+            }
+
+            #welcome-subtitle {
+                font-size: 22px;
+                margin: 20px 0 0;
+            }
+
+            .main-content {
+                padding: 20px 10px;
+                min-height: auto;
+            }
+
+            #wheel-container {
+                width: min(90vw, 350px);
+                height: min(90vw, 350px);
+                margin-bottom: 20px;
+            }
+
+            #pointer-container {
+                font-size: 50px;
+                left: -30px;
+            }
+
+            #controls {
+                flex-direction: column;
+                gap: 15px;
+                margin-bottom: 15px;
+            }
+
+            #spin-btn {
+                padding: 15px 40px;
+                font-size: 22px;
+                width: 200px;
+            }
+
+            #reset-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 30px;
+            }
+
+            #keyboard-hint {
+                font-size: 14px;
+                margin-top: -20px;
+                padding: 0 10px;
+                text-align: center;
+            }
+
+            #keyboard-hint kbd {
+                font-size: 12px;
+            }
+
+            .popup-content {
+                padding: 30px 20px;
+                margin: 20px;
+                max-width: calc(100% - 40px);
+            }
+
+            #popup-winner-name {
+                font-size: 36px;
+            }
+
+            #popup-message {
+                font-size: 24px;
+            }
+
+            #popup-hint {
+                font-size: 16px;
+            }
+
+            #creative-idea {
+                margin-top: 20px;
+                padding: 20px;
+                max-width: 90%;
+            }
+
+            #creative-idea h3 {
+                font-size: 22px;
+            }
+
+            #idea-text {
+                font-size: 16px;
+            }
+
+            #history-log {
+                margin-top: 20px;
+                padding: 15px;
+                max-width: 90%;
+                max-height: 150px;
+            }
+
+            #history-log h3 {
+                font-size: 18px;
+            }
+
+            #history-list {
+                font-size: 14px;
+            }
+
+            #history-list li {
+                padding: 6px 0;
+            }
+
+            #qr-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 60px;
+                height: 60px;
+                font-size: 28px;
+            }
+
+            .qr-content {
+                padding: 30px 20px;
+                margin: 20px;
+                max-width: calc(100% - 40px);
+            }
+
+            #qr-title {
+                font-size: 22px;
+            }
+
+            #qr-code-container {
+                padding: 15px;
+            }
+
+            #qr-code-container canvas,
+            #qr-code-container img {
+                max-width: 220px !important;
+                max-height: 220px !important;
+                width: 100% !important;
+                height: auto !important;
+            }
+
+            #qr-instructions {
+                font-size: 14px;
+            }
+
+            #qr-close {
+                width: 30px;
+                height: 30px;
+                font-size: 20px;
+            }
+        }
+
+        /* Extra small mobile devices */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            #welcome-title {
+                font-size: 36px;
+            }
+
+            #welcome-subtitle {
+                font-size: 18px;
+            }
+
+            #wheel-container {
+                width: min(85vw, 300px);
+                height: min(85vw, 300px);
+            }
+
+            #pointer-container {
+                font-size: 40px;
+                left: -25px;
+            }
+
+            #spin-btn {
+                padding: 12px 35px;
+                font-size: 20px;
+                width: 180px;
+            }
+
+            #reset-btn {
+                width: 55px;
+                height: 55px;
+                font-size: 28px;
+            }
+
+            #popup-winner-name {
+                font-size: 28px;
+            }
+
+            #popup-message {
+                font-size: 20px;
+            }
+
+            #creative-idea h3 {
+                font-size: 20px;
+            }
+
+            #idea-text {
+                font-size: 15px;
+            }
+
+            #qr-code-container canvas,
+            #qr-code-container img {
+                max-width: 180px !important;
+                max-height: 180px !important;
+            }
+        }
+
+        /* Landscape mode on mobile */
+        @media (max-width: 900px) and (orientation: landscape) {
+            .main-content {
+                padding: 10px;
+            }
+
+            #wheel-container {
+                width: min(40vh, 300px);
+                height: min(40vh, 300px);
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                margin: 5px 0;
+            }
+
+            #keyboard-hint {
+                font-size: 12px;
+                margin-top: -10px;
+            }
+
+            #history-log {
+                max-height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- FULL-SCREEN AD-STYLE WELCOME BANNER -->
+    <div id="welcome-popup">
+        <div class="welcome-content">
+            <div id="welcome-title">SMART DCC ACCOUNT</div>
+            <div id="welcome-subtitle">Welcome to the Ultimate Spin Experience!</div>
+        </div>
+    </div>
+
+    <!-- Main Game Content -->
+    <div class="main-content" id="main-content">
+        <h1>SMART DCC ACCOUNT</h1>
+        <div id="wheel-container">
+            <div id="pointer-container">➜</div>
+            <svg id="wheel" viewBox="0 0 400 400"></svg>
+        </div>
+         <div id="keyboard-hint">
+            Press <kbd>Enter</kbd> or <kbd>Space</kbd> to spin / continue • <kbd>R</kbd> to reset
+        </div>
+        <div id="controls">
+            <button id="spin-btn">SPIN </button>
+            <button id="reset-btn" title="Reset Session">↻</button>
+        </div>
+
+        <!-- Winner Popup -->
+        <div id="winner-popup">
+            <div class="popup-content">
+                <div id="popup-winner-name"></div>
+                <div id="creative-idea">
+                    <h3>SQUAD LEADER</h3>
+                    <p id="idea-text"></p>
+                </div>
+                <div id="popup-message">🎉 CONGRATULATIONS! 🎉</div>
+                <div id="popup-hint">Press Enter or Space to continue</div>
+            </div>
+        </div>
+
+        <!-- Spin History -->
+        <div id="history-log">
+            <h3>Spin History</h3>
+            <ol id="history-list"></ol>
+        </div>
+    </div>
+
+    <!-- QR Code Button -->
+    <button id="qr-btn" title="Show QR Code for Mobile">📱</button>
+
+    <!-- QR Code Modal -->
+    <div id="qr-modal">
+        <div class="qr-content">
+            <button id="qr-close">×</button>
+            <div id="qr-title">📱 Scan to Open on Mobile</div>
+            <div id="qr-code-container"></div>
+            <div id="qr-instructions">
+                Scan this QR code with your mobile device<br>
+                to access the spinning wheel app!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const teams = [
+            { label: "AD Squad 1", color: "#FF6B6B", icon: "🌐" },
+            { label: "AD Squad 2", color: "#4ECDC4", icon: "📨" },
+            { label: "AD Squad 3", color: "#45B7D1", icon: "🗄️" },
+            { label: "Test Squad", color: "#96CEB4", icon: "🔍" },
+            { label: "Platform Squad", color: "#9B59B6", icon: "☁️" },
+            { label: "Security Squad", color: "#3498DB", icon: "🛡️" }
+        ];
+
+        const creativeIdeas = {
+            "AD Squad 1": [" MAHUA "],
+            "AD Squad 2": ["VISHWESH "],
+            "AD Squad 3": ["DEEPIKA"],
+            "Test Squad": ["MILIND"],
+            "Platform Squad": ["GRIG"],
+            "Security Squad": [" SARAH "]
+        };
+
+        let availableTeams = [...teams];
+        let spinHistory = [];
+        const wheel = document.getElementById('wheel');
+        const spinBtn = document.getElementById('spin-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const winnerPopup = document.getElementById('winner-popup');
+        const popupWinnerName = document.getElementById('popup-winner-name');
+        const creativeIdeaDiv = document.getElementById('creative-idea');
+        const ideaText = document.getElementById('idea-text');
+        const historyList = document.getElementById('history-list');
+        const welcomePopup = document.getElementById('welcome-popup');
+        const mainContent = document.getElementById('main-content');
+
+        let isSpinning = false;
+        let currentRotation = 0;
+        let popupActive = false;
+
+        const svgNS = "http://www.w3.org/2000/svg";
+
+        function lightenColor(hex, percent) {
+            const num = parseInt(hex.replace("#",""), 16);
+            const amt = Math.round(2.55 * percent * 100);
+            const R = Math.min(255, Math.max(0, (num >> 16) + amt));
+            const G = Math.min(255, Math.max(0, (num >> 8 & 0x00FF) + amt));
+            const B = Math.min(255, Math.max(0, (num & 0x0000FF) + amt));
+            return "#" + (0x1000000 + R*0x10000 + G*0x100 + B).toString(16).slice(1);
+        }
+
+        function drawWheel() {
+            wheel.innerHTML = '';
+            const numSegments = availableTeams.length;
+            if (numSegments === 0) {
+                spinBtn.disabled = true;
+                return;
+            }
+            spinBtn.disabled = false;
+
+            const anglePerSegment = 360 / numSegments;
+            const radius = 180;
+            const center = 200;
+
+            availableTeams.forEach((team, index) => {
+                const startAngle = index * anglePerSegment;
+                const endAngle = (index + 1) * anglePerSegment;
+                const startRad = (startAngle * Math.PI) / 180;
+                const endRad = (endAngle * Math.PI) / 180;
+
+                const x1 = center + radius * Math.cos(startRad);
+                const y1 = center + radius * Math.sin(startRad);
+                const x2 = center + radius * Math.cos(endRad);
+                const y2 = center + radius * Math.sin(endRad);
+                const largeArc = anglePerSegment > 180 ? 1 : 0;
+
+                const pathData = `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+
+                const defs = document.createElementNS(svgNS, 'defs');
+                const gradient = document.createElementNS(svgNS, 'radialGradient');
+                gradient.setAttribute('id', `grad-${index}`);
+                const stop1 = document.createElementNS(svgNS, 'stop');
+                stop1.setAttribute('offset', '0%');
+                stop1.setAttribute('stop-color', lightenColor(team.color, 0.5));
+                const stop2 = document.createElementNS(svgNS, 'stop');
+                stop2.setAttribute('offset', '100%');
+                stop2.setAttribute('stop-color', team.color);
+                gradient.appendChild(stop1);
+                gradient.appendChild(stop2);
+                defs.appendChild(gradient);
+                wheel.appendChild(defs);
+
+                const path = document.createElementNS(svgNS, 'path');
+                path.setAttribute('d', pathData);
+                path.setAttribute('fill', `url(#grad-${index})`);
+                path.setAttribute('stroke', '#ffffff');
+                path.setAttribute('stroke-width', '4');
+                path.classList.add('segment');
+                path.dataset.index = index;
+                wheel.appendChild(path);
+
+                const midAngle = (startAngle + anglePerSegment / 2) * Math.PI / 180;
+                const textRadius = radius * 0.65;
+                const textX = center + textRadius * Math.cos(midAngle);
+                const textY = center + textRadius * Math.sin(midAngle);
+
+                const textGroup = document.createElementNS(svgNS, 'g');
+                const icon = document.createElementNS(svgNS, 'text');
+                icon.textContent = team.icon;
+                icon.setAttribute('x', textX);
+                icon.setAttribute('y', textY - 15);
+                icon.setAttribute('font-size', '45');
+                icon.setAttribute('text-anchor', 'middle');
+
+                const label = document.createElementNS(svgNS, 'text');
+                label.textContent = team.label;
+                label.setAttribute('x', textX);
+                label.setAttribute('y', textY + 25);
+                label.setAttribute('font-size', '15');
+                label.setAttribute('font-weight', 'bold');
+                label.setAttribute('fill', '#ffffff');
+                label.setAttribute('text-anchor', 'middle');
+
+                textGroup.appendChild(icon);
+                textGroup.appendChild(label);
+                wheel.appendChild(textGroup);
+            });
+        }
+
+        function generateCreativeIdea(teamLabel) {
+            const ideas = creativeIdeas[teamLabel] || ["Time to innovate!"];
+            return ideas[Math.floor(Math.random() * ideas.length)];
+        }
+
+        function triggerEpicBurst() {
+            const colors = ['#ff3b5c', '#ffd60a', '#4ecdc4', '#45b7d1', '#96ceb4', '#9b59b6', '#3498db'];
+            confetti({ particleCount: 300, spread: 150, origin: { x: 0.5, y: 0.5 }, colors, gravity: 0.8, scalar: 1.4 });
+            confetti({ particleCount: 150, angle: 60, spread: 80, origin: { x: 0, y: 0.5 }, colors });
+            confetti({ particleCount: 150, angle: 120, spread: 80, origin: { x: 1, y: 0.5 }, colors });
+        }
+
+        function showWelcomePopup() {
+            welcomePopup.classList.add('show');
+            triggerEpicBurst();
+            
+            setTimeout(() => {
+                welcomePopup.style.opacity = '0';
+                setTimeout(() => {
+                    welcomePopup.classList.remove('show');
+                    welcomePopup.style.visibility = 'hidden';
+                    mainContent.classList.add('visible');
+                }, 1200);
+            }, 1400);
+        }
+
+        function showWinnerPopup(team) {
+            popupWinnerName.textContent = team.label;
+            winnerPopup.classList.add('show');
+            popupActive = true;
+            spinBtn.disabled = true;
+        }
+
+        function hideWinnerPopup() {
+            winnerPopup.classList.remove('show');
+            popupActive = false;
+            spinBtn.disabled = availableTeams.length === 0;
+        }
+
+        function addToHistory(teamLabel) {
+            spinHistory.unshift(teamLabel);
+            const li = document.createElement('li');
+            li.textContent = teamLabel;
+            historyList.append(li);
+            if (historyList.children.length > 10) historyList.removeChild(historyList.lastChild);
+        }
+
+        function spinWheel() {
+            if (isSpinning || availableTeams.length === 0 || popupActive) return;
+
+            isSpinning = true;
+            spinBtn.disabled = true;
+            creativeIdeaDiv.classList.remove('show');
+            document.querySelectorAll('.segment').forEach(s => s.classList.remove('winner-glow'));
+
+            const randomIndex = Math.floor(Math.random() * availableTeams.length);
+            const selectedTeam = availableTeams[randomIndex];
+            const numSegments = availableTeams.length;
+            const anglePerSegment = 360 / numSegments;
+            const targetCenter = randomIndex * anglePerSegment + anglePerSegment / 2;
+
+            const extraSpins = 6 + Math.floor(Math.random() * 5);
+            const finalRotation = currentRotation + extraSpins * 360 - targetCenter;
+
+            wheel.style.transform = `rotate(${finalRotation}deg)`;
+
+            setTimeout(() => {
+                triggerEpicBurst();
+
+                const normalizedRotation = ((finalRotation % 360) + 360) % 360;
+                const arrowAngle = 180;
+                let closestIndex = 0;
+                let minDiff = Infinity;
+
+                availableTeams.forEach((team, idx) => {
+                    const segmentCenter = (idx * anglePerSegment + anglePerSegment / 2 + normalizedRotation) % 360;
+                    let diff = Math.abs(segmentCenter - arrowAngle);
+                    if (diff > 180) diff = 360 - diff;
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closestIndex = idx;
+                    }
+                });
+
+                const winnerSegment = document.querySelectorAll('.segment')[closestIndex];
+                const actualWinnerTeam = availableTeams[closestIndex];
+
+                if (winnerSegment) winnerSegment.classList.add('winner-glow');
+
+                setTimeout(() => {
+                    showWinnerPopup(actualWinnerTeam);
+                    ideaText.textContent = generateCreativeIdea(actualWinnerTeam.label);
+                    creativeIdeaDiv.classList.add('show');
+                    addToHistory(actualWinnerTeam.label);
+
+                    if (winnerSegment) {
+                        winnerSegment.classList.add('removing');
+                        winnerSegment.addEventListener('animationend', () => {
+                            availableTeams.splice(closestIndex, 1);
+                            currentRotation = finalRotation % 360;
+                            wheel.style.transition = 'none';
+                            wheel.style.transform = `rotate(${currentRotation}deg)`;
+                            setTimeout(() => {
+                                wheel.style.transition = 'transform 7s cubic-bezier(0.16, 0.68, 0.12, 0.98)';
+                                drawWheel();
+                            }, 100);
+                            isSpinning = false;
+                        }, { once: true });
+                    } else {
+                        availableTeams.splice(closestIndex, 1);
+                        drawWheel();
+                        isSpinning = false;
+                    }
+                }, 1000);
+            }, 7400);
+        }
+
+        function resetSession() {
+            // Reset all game state
+            availableTeams = [...teams];
+            spinHistory = [];
+            currentRotation = 0;
+            wheel.style.transform = 'rotate(0deg)';
+            winnerPopup.classList.remove('show');
+            creativeIdeaDiv.classList.remove('show');
+            popupActive = false;
+            historyList.innerHTML = '';
+            spinBtn.disabled = false;
+            drawWheel();
+
+            // Exactly mimic fresh page load: hide main content and replay full welcome banner
+            mainContent.classList.remove('visible');
+            welcomePopup.classList.remove('show');
+            welcomePopup.style.visibility = 'visible';
+            welcomePopup.style.opacity = '0';
+            showWelcomePopup();
+
+            // Trigger the same welcome sequence as on initial load
+            setTimeout(showWelcomePopup, 80);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 'r') {
+                e.preventDefault();
+                location.reload();  // Full page refresh
+                return;
+            }
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                if (popupActive) {
+                    hideWinnerPopup();
+                } else if (!isSpinning) {
+                    spinWheel();
+                }
+            } 
+        });
+
+        spinBtn.addEventListener('click', spinWheel);
+        resetBtn.addEventListener('click', resetSession);
+
+        // Add touch support for mobile devices
+        spinBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            spinWheel();
+        });
+
+        // Touch support for winner popup - tap anywhere to continue
+        winnerPopup.addEventListener('click', (e) => {
+            if (popupActive && e.target !== qrClose) {
+                hideWinnerPopup();
+            }
+        });
+
+        winnerPopup.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (popupActive && e.target !== qrClose) {
+                hideWinnerPopup();
+            }
+        });
+
+        // Touch support for wheel itself - tap to spin
+        wheel.addEventListener('click', () => {
+            if (!isSpinning && !popupActive && availableTeams.length > 0) {
+                spinWheel();
+            }
+        });
+
+        wheel.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (!isSpinning && !popupActive && availableTeams.length > 0) {
+                spinWheel();
+            }
+        });
+
+        // QR Code functionality with AI-powered device detection
+        const qrBtn = document.getElementById('qr-btn');
+        const qrModal = document.getElementById('qr-modal');
+        const qrClose = document.getElementById('qr-close');
+        const qrCodeContainer = document.getElementById('qr-code-container');
+        let qrCodeGenerated = false;
+
+        // AI-powered Smart QR Code Generator
+        // Automatically detects device type (iOS/Android) and redirects appropriately
+        function generateSmartQRCode() {
+            if (!qrCodeGenerated) {
+                qrCodeContainer.innerHTML = '';
+                
+                // Create a smart landing page URL that will detect device type
+                // This URL will use AI logic to route users to the correct destination
+                const baseURL = window.location.origin + window.location.pathname;
+                const smartLandingURL = baseURL + '?mobile=true&src=qr';
+                
+                // Alternative: If you have a dedicated mobile landing page/API endpoint
+                // const smartLandingURL = 'https://yourdomain.com/smart-redirect';
+                
+                new QRCode(qrCodeContainer, {
+                    text: smartLandingURL,
+                    width: 256,
+                    height: 256,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                qrCodeGenerated = true;
+            }
+        }
+
+        // AI Device Detection - Runs when page loads with mobile=true parameter
+        function detectAndRedirectMobileDevice() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isMobileQRScan = urlParams.get('mobile') === 'true';
+            
+            if (isMobileQRScan) {
+                const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+                
+                // AI-powered device detection logic
+                const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+                const isAndroid = /android/i.test(userAgent);
+                
+                // Configure your app store URLs and deep links here
+                const APP_CONFIG = {
+                    ios: {
+                        appStore: 'https://apps.apple.com/app/your-app-id', // Replace with your iOS App Store URL
+                        deepLink: 'smartdcc://', // Replace with your iOS app scheme
+                        universalLink: 'https://yourdomain.com/app' // Optional: Universal Link
+                    },
+                    android: {
+                        playStore: 'https://play.google.com/store/apps/details?id=com.yourapp', // Replace with your Android app
+                        deepLink: 'smartdcc://', // Replace with your Android app scheme
+                        appLink: 'https://yourdomain.com/app' // Optional: App Link
+                    }
+                };
+                
+                // Smart redirect logic with AI decision making
+                if (isIOS) {
+                    // Try to open the app first (if installed)
+                    window.location.href = APP_CONFIG.ios.deepLink || APP_CONFIG.ios.universalLink;
+                    
+                    // Fallback to App Store after 2 seconds if app not installed
+                    setTimeout(() => {
+                        if (document.hidden) return; // App opened successfully
+                        window.location.href = APP_CONFIG.ios.appStore;
+                    }, 2000);
+                } else if (isAndroid) {
+                    // Try to open the app first (if installed)
+                    window.location.href = APP_CONFIG.android.deepLink || APP_CONFIG.android.appLink;
+                    
+                    // Fallback to Play Store after 2 seconds if app not installed
+                    setTimeout(() => {
+                        if (document.hidden) return; // App opened successfully
+                        window.location.href = APP_CONFIG.android.playStore;
+                    }, 2000);
+                } else {
+                    // Desktop or unrecognized device - show message
+                    alert('Please scan this QR code using your mobile device (iOS or Android) to access the mobile app.');
+                }
+                
+                // Analytics tracking (optional - integrate with your analytics service)
+                console.log('QR Scan detected:', {
+                    device: isIOS ? 'iOS' : isAndroid ? 'Android' : 'Other',
+                    userAgent: userAgent,
+                    timestamp: new Date().toISOString()
+                });
+            }
+        }
+
+        // Run device detection on page load
+        detectAndRedirectMobileDevice();
+
+        qrBtn.addEventListener('click', () => {
+            generateSmartQRCode();
+            qrModal.classList.add('show');
+        });
+
+        qrClose.addEventListener('click', () => {
+            qrModal.classList.remove('show');
+        });
+
+        qrModal.addEventListener('click', (e) => {
+            if (e.target === qrModal) {
+                qrModal.classList.remove('show');
+            } 
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && qrModal.classList.contains('show')) {
+                qrModal.classList.remove('show');
+            }
+        });
+
+        // Initial load - show welcome banner
+        showWelcomePopup();
+        drawWheel();
+    </script>
+</body>
+</html>
