@@ -1,1 +1,1 @@
-Hi Welcome to Experience the Spin Wheel
+Hi client to Experience the Spin Wheel
